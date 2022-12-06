@@ -1,8 +1,7 @@
-import os, shutil, csv
+import os, shutil, csv, cv2, random
 from imutils import paths
 from PIL import Image
 import numpy as np
-import cv2
 
 """
 Flags used to remove duplicates, rename folders and combining folders when
@@ -186,4 +185,33 @@ def convertGray(path):
             img_gray = img_rgb.convert('L')
             img_gray.save("grayscale/"+"gray_"+img)
 
-convertGray('Data/')
+def train_test_split(path):
+    toTest, total = list(), 150
+    map = {1: [], 2: [], 3: [], 4: [], 5: []}
+
+    # Creating map for each of the classes
+    for img in os.listdir(path+"grayscale/"):
+        if "." in img and img != ".DS_Store":
+            label = int(img[img.index(".")-1])
+            map[label].append(img)
+
+    # Getting the 30% to test on
+    for label in map:
+        for _ in range(int(len(map[label])*.3)):
+            randomImage = random.choice(map[label])
+            map[label].remove(randomImage)
+            toTest.append(randomImage)
+    
+    # Moving the testing data to its own directory
+    for filename in os.listdir(path):
+        if ".DS_Store" != filename:
+            for file in toTest:
+                if filename == "color":
+                    oldPath = path+filename+"/"+file[5:]
+                    newPath = path+filename+"/test/"+file[5:]
+                else:
+                    oldPath = path+filename+"/"+file
+                    newPath = path+filename+"/test/"+file[5:]
+            shutil.move(oldPath, newPath)
+
+
