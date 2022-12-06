@@ -1,9 +1,7 @@
-import os, shutil
+import os, shutil, csv
 from imutils import paths
 import numpy as np
 import cv2
-import os
-
 
 """
 Flags used to remove duplicates, rename folders and combining folders when
@@ -130,16 +128,53 @@ def removeDups(directory):
     print("removed", count, "duplicates")
 
 
+def resizeData():
+    height, width = findScale()
+    print("Mean Dimensions:", height, width)
 
-height, width = findScale()
-print("Mean Dimensions:", height, width)
+    percent = 100/max(height, width)
+    print("Scaled dimensions", int(height*percent), int(width*percent))
+    resizeImages((int(width*percent), int(height*percent)))
 
-percent = 100/max(height, width)
-print("Scaled dimensions", int(height*percent), int(width*percent))
-resizeImages((int(width*percent), int(height*percent)))
+    print("Checking dimensions...", end="")
+    resizeImages((int(height*percent), int(width*percent)), check = True)
+    print("Done checking!")
 
-print("Checking dimensions...", end="")
-resizeImages((int(height*percent), int(width*percent)), check = True)
-print("Done checking!")
+def renameData(path):
+    for filename in os.listdir(path):
+        if ".DS_Store" not in filename:
+            print(filename)
+            label = filename[0]
+            for img in os.listdir(path+filename):
+                index = img.find(".")
+                newImg = img[:index]+"_"+label+".jpg"
+                oldName = path+filename+"/"+img
+                newName = path+filename+"/"+newImg
+                os.rename(oldName, newName)
 
+def createRow(image, label):
+    L = [image] + [0]*5
+    L[label] = 1
+    return L
+
+def createCSV(path):
+    with open('dataInfo.csv', 'w') as csvfile:
+        filewriter = csv.writer(csvfile, delimiter=',',
+                                quotechar='|', quoting=csv.QUOTE_MINIMAL)
+        filewriter.writerow(['img', 'Jordan 1', 'Jordan 2', 
+                                            'Jordan 3', 'Jordan 4', 'Jordan 5'])
+        for filename in os.listdir(path):
+            if ".DS_Store" not in filename:
+                for img in os.listdir(path+filename):
+                    index = img.find(".")
+                    label = int(img[index-1])
+                    newRow = createRow(img, label)
+                    filewriter.writerow(newRow)
+
+def moveData(path):
+    for filename in os.listdir(path):
+        if ".DS_Store" not in filename:
+            for img in os.listdir(path+filename):
+                imgPath = path+filename+"/"+img
+                shutil.move(imgPath, path)
 
