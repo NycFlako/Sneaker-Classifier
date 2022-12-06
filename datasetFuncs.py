@@ -1,5 +1,6 @@
 import os, shutil, csv
 from imutils import paths
+from PIL import Image
 import numpy as np
 import cv2
 
@@ -178,3 +179,11 @@ def moveData(path):
                 imgPath = path+filename+"/"+img
                 shutil.move(imgPath, path)
 
+def convertGray(path):
+    for img in os.listdir(path):
+        if ".DS_Store" not in img:
+            img_rgb = Image.open(path+img)
+            img_gray = img_rgb.convert('L')
+            img_gray.save("grayscale/"+"gray_"+img)
+
+convertGray('Data/')
