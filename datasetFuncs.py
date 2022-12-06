@@ -158,19 +158,20 @@ def createRow(image, label):
     return L
 
 def createCSV(path):
-    with open('dataInfo.csv', 'w') as csvfile:
-        filewriter = csv.writer(csvfile, delimiter=',',
-                                quotechar='|', quoting=csv.QUOTE_MINIMAL)
-        filewriter.writerow(['img', 'Jordan 1', 'Jordan 2', 
-                                            'Jordan 3', 'Jordan 4', 'Jordan 5'])
-        for filename in os.listdir(path):
-            if ".DS_Store" not in filename:
-                for img in os.listdir(path+filename):
+    kinds = ["train", "test"]
+    for kind in kinds:
+        with open(kind+'.csv', 'w') as csvfile:
+            filewriter = csv.writer(csvfile, delimiter=',',
+                                    quotechar='|', quoting=csv.QUOTE_MINIMAL)
+            filewriter.writerow(['img', 'Jordan 1', 
+                                'Jordan 2', 'Jordan 3', 'Jordan 4', 'Jordan 5'])
+            for img in os.listdir(path+kind+"/"):
+                if ".DS_Store" not in img:
                     index = img.find(".")
                     label = int(img[index-1])
                     newRow = createRow(img, label)
                     filewriter.writerow(newRow)
-
+    
 def moveData(path):
     for filename in os.listdir(path):
         if ".DS_Store" not in filename:
@@ -213,5 +214,3 @@ def train_test_split(path):
                     oldPath = path+filename+"/"+file
                     newPath = path+filename+"/test/"+file[5:]
             shutil.move(oldPath, newPath)
-
-
