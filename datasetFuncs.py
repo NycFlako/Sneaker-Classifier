@@ -214,3 +214,23 @@ def train_test_split(path):
                     oldPath = path+filename+"/"+file
                     newPath = path+filename+"/test/"+file[5:]
             shutil.move(oldPath, newPath)
+
+
+def rescaleData(path, scale):
+    for filename in os.listdir(path):
+        if ".DS_Store" not in filename:
+            for kind in os.listdir(path+filename):
+                if kind != ".DS_Store":
+                    for img in os.listdir(path+filename+"/"+kind):
+                        if ".DS_Store" != img:
+                            imgPath = path+filename+"/"+kind+"/"+img
+                            image = cv2.imread(imgPath)
+                            height, width = image.shape[0], image.shape[1]
+                            dim = (int(width*scale), int(height*scale))
+                            resized = cv2.resize(image, dim, interpolation = cv2.INTER_AREA)
+                            try:
+                                cv2.imwrite(imgPath, resized) 
+                            except:
+                                print("Error writing:", imgPath)
+
+rescaleData("Data/", .5)
