@@ -233,4 +233,7 @@ def rescaleData(path, scale):
                             except:
                                 print("Error writing:", imgPath)
 
-rescaleData("Data/", .5)
+def renameFiles(path):
+    for filename in os.listdir(path):
+        if filename != ".DS_Store":
+            os.rename(path+filename, path+filename[5:])
