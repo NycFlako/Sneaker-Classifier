@@ -216,7 +216,7 @@ def train_test_split(path):
             shutil.move(oldPath, newPath)
 
 
-def rescaleData(path, scale):
+def rescaleData(path, scale, fixedDim = None):
     for filename in os.listdir(path):
         if ".DS_Store" not in filename:
             for kind in os.listdir(path+filename):
@@ -227,12 +227,16 @@ def rescaleData(path, scale):
                             image = cv2.imread(imgPath)
                             height, width = image.shape[0], image.shape[1]
                             dim = (int(width*scale), int(height*scale))
-                            resized = cv2.resize(image, dim, interpolation = cv2.INTER_AREA)
+                            if fixedDim != None:
+                                resized = cv2.resize(image, fixedDim, interpolation = cv2.INTER_AREA)
+                            else:
+                                resized = cv2.resize(image, dim, interpolation = cv2.INTER_AREA)
                             try:
                                 cv2.imwrite(imgPath, resized) 
                             except:
                                 print("Error writing:", imgPath)
 
+rescaleData("Data/", 1, (100, 72))
 def renameFiles(path):
     for filename in os.listdir(path):
         if filename != ".DS_Store":
