@@ -165,13 +165,14 @@ def createCSV(path):
                                     quotechar='|', quoting=csv.QUOTE_MINIMAL)
             filewriter.writerow(['img', 'Jordan 1', 
                                 'Jordan 2', 'Jordan 3', 'Jordan 4', 'Jordan 5'])
-            for img in os.listdir(path+kind+"/"):
+            for img in os.listdir(path+"color/"+kind+"/"):
                 if ".DS_Store" not in img:
                     index = img.find(".")
                     label = int(img[index-1])
                     newRow = createRow(img, label)
                     filewriter.writerow(newRow)
     
+createCSV("Data/")
 def moveData(path):
     for filename in os.listdir(path):
         if ".DS_Store" not in filename:
@@ -236,8 +237,39 @@ def rescaleData(path, scale, fixedDim = None):
                             except:
                                 print("Error writing:", imgPath)
 
-rescaleData("Data/", 1, (100, 72))
 def renameFiles(path):
     for filename in os.listdir(path):
         if filename != ".DS_Store":
             os.rename(path+filename, path+filename[5:])
+
+def makeDataClass():
+    path = "Data/"
+    for i in range(1, 6):
+        os.makedirs(path+str(i)+"_images")
+    for kind in ["train", "test"]:
+        for file in os.listdir(path+"color/"+kind):
+            if file != ".DS_Store":
+                folder = file[file.index('.')-1]+"_images"
+                oldPath = path+"color/"+kind+"/"+file
+                newPath = path+folder+"/"+file
+                shutil.copyfile(oldPath, newPath)
+
+def resizeTest(path):
+    toMove = {1: [], 2: [], 3: [], 4: [], 5: []}
+    total = list()
+    for file in os.listdir(path+"color/test/"):
+        if file != ".DS_Store":
+            label = int(file[file.index(".")-1])
+            toMove[label].append(file)
+
+    for label in toMove:
+        for _ in range(int(len(toMove[label])*(2/3))):
+            randomImage = random.choice(toMove[label])
+            toMove[label].remove(randomImage)
+            total.append(randomImage)
+
+    for img in total:
+        for kind in ["color/", "grayscale/"]:
+            oldPath = path+kind+"test/"+img
+            newPath = path+kind+"train/"+img
+            shutil.move(oldPath, newPath)
